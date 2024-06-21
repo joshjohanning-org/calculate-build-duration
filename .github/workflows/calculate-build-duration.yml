@@ -28,6 +28,7 @@ jobs:
       - name: Write job context to log
         env:
           JOB_CONTEXT: ${{ toJSON(job) }}
+        run: echo "$JOB_CONTEXT"
 
       - run: sleep 5s
 
