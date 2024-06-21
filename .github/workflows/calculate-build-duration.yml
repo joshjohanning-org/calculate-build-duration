@@ -30,12 +30,14 @@ jobs:
           JOB_CONTEXT: ${{ toJSON(job) }}
         run: echo "$JOB_CONTEXT"
 
-      - run: sleep 5s
+      - run: sleep 120s
 
       - name: Calculate build duration
         run: |
-          END_TIME=$(date +%s)
           START_TIME=${{ steps.set-start-time.outputs.start_time }}
-          DURATION=$((END_TIME - START_TIME))
-          echo "Build duration: $DURATION seconds"
+          END_TIME=$(date +%s)
+          DURATION_SECONDS=$((END_TIME - START_TIME))
+          DURATION_MINUTES=$((DURATION_SECONDS / 60))
+          echo "Build duration (in seconds): $DURATION_SECONDS second(s)"
+          echo "Build duration (in minutes): $DURATION_MINUTES minute(s)"
           
