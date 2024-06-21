@@ -47,7 +47,7 @@ jobs:
         run: |
           JOB_URL="${{ github.api_url }}/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs"
           JOB_JSON=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $JOB_URL)
-          START_TIME=$(echo $JOB_JSON | jq -r '.jobs[] | select(.name == "build") | .started_at' | xargs -I {} date -d {} +%s)
+          START_TIME=$(echo $JOB_JSON | jq -r '.jobs[] | select(.name == "${{ github.job }}") | .started_at' | xargs -I {} date -d {} +%s)
           END_TIME=$(date +%s)
           DURATION_SECONDS=$(( (END_TIME - START_TIME) ))
           DURATION_MINUTES=$(( (END_TIME - START_TIME) / 60 ))
