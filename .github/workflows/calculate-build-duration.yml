@@ -30,9 +30,9 @@ jobs:
           JOB_CONTEXT: ${{ toJSON(job) }}
         run: echo "$JOB_CONTEXT"
 
-      - run: sleep 120s
+      - run: sleep 5s
 
-      - name: Calculate build duration
+      - name: Calculate build duration (simple)
         run: |
           START_TIME=${{ steps.set-start-time.outputs.start_time }}
           END_TIME=$(date +%s)
@@ -41,3 +41,15 @@ jobs:
           echo "Build duration (in seconds): $DURATION_SECONDS second(s)"
           echo "Build duration (in minutes): $DURATION_MINUTES minute(s)"
           
+      - name: Calculate build duration in minutes using GitHub API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          JOB_URL="${{ github.api_url }}/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs"
+          JOB_JSON=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $JOB_URL)
+          START_TIME=$(echo $JOB_JSON | jq -r '.jobs[] | select(.name == "build") | .started_at' | xargs -I {} date -j -f "%Y-%m-%dT%H:%M:%SZ" "{}" +%s)
+          END_TIME=$(date +%s)
+          DURATION_SECONDS=$(( (END_TIME - START_TIME) ))
+          DURATION_MINUTES=$(( (END_TIME - START_TIME) / 60 ))
+          echo "Build duration: $DURATION_SECONDS seconds" 
+          echo "Build duration: $DURATION_MINUTES minutes" 
