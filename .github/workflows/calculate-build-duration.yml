@@ -1,0 +1,40 @@
+name: calculate-build-duration
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # only needed if we have a second job where we would reference this
+    outputs:
+      start_time: ${{ steps.set-start-time.outputs.start_time }}
+
+    steps:
+      - name: Set start time
+        id: set-start-time
+        run: echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
+      
+      - uses: actions/checkout@v4
+
+      - name: Write GitHub context to log
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Write job context to log
+        env:
+          JOB_CONTEXT: ${{ toJSON(job) }}
+
+      - run: sleep 5s
+
+      - name: Calculate build duration
+        run: |
+          END_TIME=$(date +%s)
+          START_TIME=${{ steps.set-start-time.outputs.start_time }}
+          DURATION=$((END_TIME - START_TIME))
+          echo "Build duration: $DURATION seconds"
+          
